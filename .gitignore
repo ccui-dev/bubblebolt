@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+
+# OpenClaw agent scaffolding
+.openclaw/
+AGENTS.md
+SOUL.md
+USER.md
+TOOLS.md
+IDENTITY.md
+HEARTBEAT.md
+memory/
+notes/
+
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+.vs/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.unitypackage
+*.apk
+*.aab
+*.ipa
+
+# IDE cruft
+.idea/
+*.iml
