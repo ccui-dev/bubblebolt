@@ -16,6 +16,7 @@ namespace BubbleBolt.Gameplay.Player
 
         public float AngleRadians => _theta;
         public float AngularVelocity => _angularVelocity;
+        public float CurrentRadius => _currentRadius;
         public float NormalizedSpeed => Mathf.Approximately(tuning.omegaMax, 0f)
             ? 0f
             : Mathf.Clamp01(Mathf.Abs(_angularVelocity) / tuning.omegaMax);
