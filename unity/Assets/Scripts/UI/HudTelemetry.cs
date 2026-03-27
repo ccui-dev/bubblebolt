@@ -32,7 +32,7 @@ namespace BubbleBolt.UI
 
                 if (livesLabel != null)
                 {
-                    livesLabel.text = new string('\u25CF', playerPainter.Lives);
+                    livesLabel.text = new string('\u25CF', Mathf.Max(0, playerPainter.Lives));
                 }
             }
 
@@ -51,6 +51,24 @@ namespace BubbleBolt.UI
                     rivalCoverageBar.value = rivalCoverage;
                 }
             }
+        }
+
+        public void Configure(
+            ArenaPainter arena,
+            PlayerPainter player,
+            TextMeshProUGUI combo,
+            TextMeshProUGUI score,
+            TextMeshProUGUI lives,
+            Slider playerBar,
+            Slider rivalBar)
+        {
+            arenaPainter = arena;
+            playerPainter = player;
+            comboLabel = combo;
+            scoreLabel = score;
+            livesLabel = lives;
+            playerCoverageBar = playerBar;
+            rivalCoverageBar = rivalBar;
         }
     }
 }

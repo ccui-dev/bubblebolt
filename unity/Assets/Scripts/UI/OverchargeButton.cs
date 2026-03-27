@@ -47,5 +47,14 @@ namespace BubbleBolt.UI
         {
             playerPainter?.TriggerOvercharge();
         }
+
+        public void Configure(PlayerPainter painter, Image gaugeImage = null)
+        {
+            playerPainter = painter;
+            if (gaugeImage != null)
+            {
+                fillImage = gaugeImage;
+            }
+        }
     }
 }

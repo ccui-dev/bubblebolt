@@ -40,5 +40,12 @@ namespace BubbleBolt.AI
 
             arenaPainter.Paint(SectorOwner.Rival, _theta, targetSpeed01, dt, false);
         }
+
+        public void Configure(PrototypeTuning tuningAsset, ArenaPainter painter, Transform center)
+        {
+            tuning = tuningAsset;
+            arenaPainter = painter;
+            arenaCenter = center;
+        }
     }
 }

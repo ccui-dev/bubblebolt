@@ -64,6 +64,18 @@ namespace BubbleBolt.Gameplay.Arena
             return Mathf.Abs(delta * Mathf.Deg2Rad) <= angularHalfExtent;
         }
 
+        public void Configure(PlayerOrbitMover mover, PlayerPainter painter, float hazardRadius, float angularHalfExtentRadians, float toleranceOverride = -1f)
+        {
+            orbitMover = mover;
+            playerPainter = painter;
+            radius = hazardRadius;
+            angularHalfExtent = angularHalfExtentRadians;
+            if (toleranceOverride >= 0f)
+            {
+                radiusTolerance = toleranceOverride;
+            }
+        }
+
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {

@@ -37,10 +37,40 @@ namespace BubbleBolt.Gameplay.Player
             _orbitMover = GetComponent<PlayerOrbitMover>();
             if (tuning == null || arenaPainter == null)
             {
-                Debug.LogError("PlayerPainter missing references.", this);
+                return;
             }
 
-            _lives = tuning != null ? tuning.maxLives : 2;
+            ResetState();
+        }
+
+        public void Configure(PrototypeTuning tuningAsset, ArenaPainter arenaPainterRef)
+        {
+            tuning = tuningAsset;
+            arenaPainter = arenaPainterRef;
+            _orbitMover ??= GetComponent<PlayerOrbitMover>();
+
+            if (tuning != null)
+            {
+                ResetState();
+            }
+        }
+
+        private void ResetState()
+        {
+            if (tuning == null)
+            {
+                return;
+            }
+
+            _lives = tuning.maxLives;
+            _overchargeGauge = 0f;
+            _overchargeActive = false;
+            _overchargeTimer = 0f;
+            _combo = 0;
+            _perfectArcRun = 0;
+            _lastClaimedSector = -1;
+            _score = 0f;
+            _invulnerabilityTimer = 0f;
         }
 
         private void Update()

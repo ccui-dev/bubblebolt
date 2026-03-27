@@ -38,12 +38,36 @@ namespace BubbleBolt.Gameplay.Arena
 
         public IReadOnlyList<SectorState> Sectors => sectors;
         public int SectorCount => sectors.Count;
+        public PrototypeTuning Tuning => tuning;
 
         private void Awake()
         {
             if (tuning == null)
             {
                 Debug.LogError("PrototypeTuning reference missing on ArenaPainter.", this);
+                return;
+            }
+
+            EnsureSectorsMatchTuning();
+        }
+
+        public void Configure(PrototypeTuning tuningAsset)
+        {
+            tuning = tuningAsset;
+            if (tuning == null)
+            {
+                Debug.LogError("Attempted to configure ArenaPainter with a null tuning asset.", this);
+                return;
+            }
+
+            EnsureSectorsMatchTuning();
+        }
+
+        private void EnsureSectorsMatchTuning()
+        {
+            if (tuning == null)
+            {
+                return;
             }
 
             if (sectors.Count != tuning.sectorCount)

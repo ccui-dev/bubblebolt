@@ -28,19 +28,31 @@ namespace BubbleBolt.Gameplay.Player
 
         private void Awake()
         {
-            if (tuning == null)
-            {
-                Debug.LogError("PrototypeTuning reference missing on PlayerOrbitMover.", this);
-            }
-
             if (arenaCenter == null)
             {
                 arenaCenter = new GameObject("ArenaCenter").transform;
                 arenaCenter.position = Vector3.zero;
             }
 
+            InitializeState();
+        }
+
+        public void Configure(PrototypeTuning tuningAsset, Transform arenaCenterTransform)
+        {
+            tuning = tuningAsset;
+            arenaCenter = arenaCenterTransform;
+            InitializeState();
+        }
+
+        private void InitializeState()
+        {
+            if (tuning == null)
+            {
+                return;
+            }
+
             _theta = 0f;
-            _targetRadius = tuning != null ? tuning.targetRadius : 0.8f;
+            _targetRadius = tuning.targetRadius;
             _currentRadius = _targetRadius;
         }
 

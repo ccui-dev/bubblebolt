@@ -23,6 +23,12 @@ namespace BubbleBolt.Systems
             onRivalCoverage?.Invoke(arenaPainter.GetCoverage(SectorOwner.Rival));
         }
 
+        public void Configure(ArenaPainter painter, PlayerPainter player)
+        {
+            arenaPainter = painter;
+            playerPainter = player;
+        }
+
         public void NotifyHazardCollision()
         {
             playerPainter?.RegisterHit();

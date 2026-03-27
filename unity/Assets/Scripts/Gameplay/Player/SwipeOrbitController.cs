@@ -23,6 +23,11 @@ namespace BubbleBolt.Gameplay.Player
             }
         }
 
+        public void Configure(PrototypeTuning tuningAsset)
+        {
+            tuning = tuningAsset;
+        }
+
         private void Update()
         {
             if (tuning == null || _mover == null)
