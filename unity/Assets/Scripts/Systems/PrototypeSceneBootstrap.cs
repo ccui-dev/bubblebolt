@@ -235,6 +235,27 @@ namespace BubbleBolt.Systems
             var sessionHud = canvasGO.AddComponent<SessionStatusHud>();
             sessionHud.Configure(sessionManager, roundLabel, roundTimer, roundTimerText, sessionScoreLabel);
 
+            GameObject summaryPanel = new("SessionSummary");
+            summaryPanel.transform.SetParent(canvasGO.transform, false);
+            var summaryRect = summaryPanel.AddComponent<RectTransform>();
+            summaryRect.anchorMin = summaryRect.anchorMax = new Vector2(0.5f, 0.5f);
+            summaryRect.pivot = new Vector2(0.5f, 0.5f);
+            summaryRect.sizeDelta = new Vector2(620f, 620f);
+            var summaryBg = summaryPanel.AddComponent<Image>();
+            summaryBg.color = new Color(0f, 0f, 0f, 0.75f);
+            summaryPanel.SetActive(false);
+
+            TextMeshProUGUI summaryHeadline = CreateLabel(summaryRect, "SummaryHeadline", new Vector2(0f, 180f), TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f));
+            summaryHeadline.fontSize = 64f;
+
+            TextMeshProUGUI summaryDetails = CreateLabel(summaryRect, "SummaryDetails", new Vector2(0f, 40f), TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f));
+            summaryDetails.fontSize = 40f;
+
+            Button replayButton = CreateButton(summaryRect, "ReplayButton", new Vector2(0f, -170f), new Vector2(360f, 110f), "Replay");
+
+            var summaryPanelController = canvasGO.AddComponent<SessionSummaryPanel>();
+            summaryPanelController.Configure(sessionManager, playerPainter, summaryPanel, summaryHeadline, summaryDetails, replayButton);
+
             CreateOverchargeButton(canvasGO.transform, playerPainter);
         }
 
@@ -266,6 +287,31 @@ namespace BubbleBolt.Systems
             rect.sizeDelta = new Vector2(500f, 80f);
 
             return text;
+        }
+
+        private Button CreateButton(Transform parent, string name, Vector2 anchoredPosition, Vector2 size, string labelText)
+        {
+            GameObject go = new(name);
+            go.transform.SetParent(parent, false);
+
+            RectTransform rect = go.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = size;
+
+            Image background = go.AddComponent<Image>();
+            background.color = new Color(0.95f, 0.75f, 0.25f, 0.9f);
+
+            Button button = go.AddComponent<Button>();
+            button.transition = Selectable.Transition.ColorTint;
+
+            TextMeshProUGUI label = CreateLabel(rect, "Label", Vector2.zero, TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f));
+            label.fontSize = 48f;
+            label.text = labelText;
+
+            return button;
         }
 
         private Slider CreateSlider(Transform parent, string name, Vector2 anchoredPosition, Color fillColor)
