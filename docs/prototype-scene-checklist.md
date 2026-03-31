@@ -42,6 +42,7 @@ SceneRoot
 5. **UI**
    - `HudTelemetry`: set `arenaPainter`, `playerPainter`, text labels, and coverage sliders.
    - `OverchargeButton`: hook `playerPainter`, assign the gauge fill `Image`, tweak colors.
+   - `SessionStatusHud`: feed it the `PrototypeSessionManager` plus the timer/label references if you want the round timer + win tracker to show up.
 6. **MatchStateController**
    - Wire `onPlayerCoverage` / `onRivalCoverage` into slider `SetValueWithoutNotify` if you prefer events over polling.
 7. **PrototypeSessionManager (optional but recommended)**

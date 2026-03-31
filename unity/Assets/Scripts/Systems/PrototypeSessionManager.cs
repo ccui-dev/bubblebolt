@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using BubbleBolt.AI;
 using BubbleBolt.Gameplay.Arena;
@@ -32,6 +33,15 @@ namespace BubbleBolt.Systems
         [SerializeField] private UnityEvent<int, float> onRoundTimeNormalized;
         [SerializeField] private UnityEvent<int, float, float, SectorOwner> onRoundCompleted;
         [SerializeField] private UnityEvent<int, int> onSessionCompleted;
+
+        public event Action<int> RoundStartedEvent;
+        public event Action<int, float> RoundTimerEvent;
+        public event Action<int, float, float, SectorOwner> RoundCompletedEvent;
+        public event Action<int, int> SessionCompletedEvent;
+
+        public int TotalRounds => totalRounds;
+        public float RoundDurationSeconds => roundDurationSeconds;
+        public bool IsRunning => _sessionRoutine != null;
 
         private Coroutine _sessionRoutine;
         private int _playerRoundsWon;
@@ -111,6 +121,7 @@ namespace BubbleBolt.Systems
             {
                 PrepareRound();
                 onRoundStarted?.Invoke(roundIndex);
+                RoundStartedEvent?.Invoke(roundIndex);
 
                 float timer = roundDurationSeconds;
                 while (timer > 0f)
@@ -121,6 +132,7 @@ namespace BubbleBolt.Systems
                         ? 1f
                         : 1f - Mathf.Clamp01(timer / roundDurationSeconds);
                     onRoundTimeNormalized?.Invoke(roundIndex, normalized);
+                    RoundTimerEvent?.Invoke(roundIndex, normalized);
 
                     if (TryResolveImmediateWinner(out _))
                     {
@@ -142,6 +154,7 @@ namespace BubbleBolt.Systems
                 }
 
                 onRoundCompleted?.Invoke(roundIndex, playerCoverage, rivalCoverage, winner);
+                RoundCompletedEvent?.Invoke(roundIndex, playerCoverage, rivalCoverage, winner);
 
                 if (_playerRoundsWon >= roundsToWin || _rivalRoundsWon >= roundsToWin)
                 {
@@ -155,6 +168,7 @@ namespace BubbleBolt.Systems
             }
 
             onSessionCompleted?.Invoke(_playerRoundsWon, _rivalRoundsWon);
+            SessionCompletedEvent?.Invoke(_playerRoundsWon, _rivalRoundsWon);
             _sessionRoutine = null;
         }
 

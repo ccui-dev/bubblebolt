@@ -101,9 +101,10 @@ namespace BubbleBolt.Systems
             var matchState = systemsRoot.gameObject.AddComponent<MatchStateController>();
             matchState.Configure(arenaPainter, playerPainter);
 
+            PrototypeSessionManager sessionManager = null;
             if (spawnSessionManager)
             {
-                var sessionManager = systemsRoot.gameObject.AddComponent<PrototypeSessionManager>();
+                sessionManager = systemsRoot.gameObject.AddComponent<PrototypeSessionManager>();
                 sessionManager.Configure(arenaPainter, playerPainter, orbitMover, rivalController);
                 sessionManager.ApplyRoundSettings(sessionRounds, sessionRoundDuration, sessionCoverageToWin, sessionCoverageDeadband, sessionInterRoundDelay);
                 sessionManager.BeginSession();
@@ -111,7 +112,7 @@ namespace BubbleBolt.Systems
 
             if (spawnRuntimeHud)
             {
-                BuildHud(root, arenaPainter, playerPainter);
+                BuildHud(root, arenaPainter, playerPainter, sessionManager);
             }
         }
 
@@ -190,7 +191,7 @@ namespace BubbleBolt.Systems
             line.material.color = new Color(0.2f, 0.6f, 1f, 0.4f);
         }
 
-        private void BuildHud(Transform parent, ArenaPainter arenaPainter, PlayerPainter playerPainter)
+        private void BuildHud(Transform parent, ArenaPainter arenaPainter, PlayerPainter playerPainter, PrototypeSessionManager sessionManager)
         {
             GameObject canvasGO = new("HUD_Canvas");
             canvasGO.transform.SetParent(parent, false);
@@ -214,11 +215,25 @@ namespace BubbleBolt.Systems
             TextMeshProUGUI livesLabel = CreateLabel(canvasGO.transform, "LivesLabel", new Vector2(40f, -140f), TextAlignmentOptions.Left, new Vector2(0f, 1f));
             livesLabel.text = "●●";
 
-            Slider playerSlider = CreateSlider(canvasGO.transform, "PlayerCoverage", new Vector2(0f, -220f), new Color(0.2f, 0.75f, 1f));
-            Slider rivalSlider = CreateSlider(canvasGO.transform, "RivalCoverage", new Vector2(0f, -280f), new Color(1f, 0.45f, 0.7f));
+            TextMeshProUGUI roundLabel = CreateLabel(canvasGO.transform, "RoundLabel", new Vector2(0f, -40f), TextAlignmentOptions.Center, new Vector2(0.5f, 1f));
+            roundLabel.fontSize = 42f;
+
+            Slider roundTimer = CreateSlider(canvasGO.transform, "RoundTimer", new Vector2(0f, -120f), new Color(0.95f, 0.75f, 0.25f));
+
+            TextMeshProUGUI roundTimerText = CreateLabel(canvasGO.transform, "RoundTimerText", new Vector2(0f, -170f), TextAlignmentOptions.Center, new Vector2(0.5f, 1f));
+            roundTimerText.fontSize = 40f;
+
+            TextMeshProUGUI sessionScoreLabel = CreateLabel(canvasGO.transform, "SessionScoreLabel", new Vector2(0f, -210f), TextAlignmentOptions.Center, new Vector2(0.5f, 1f));
+            sessionScoreLabel.fontSize = 40f;
+
+            Slider playerSlider = CreateSlider(canvasGO.transform, "PlayerCoverage", new Vector2(0f, -260f), new Color(0.2f, 0.75f, 1f));
+            Slider rivalSlider = CreateSlider(canvasGO.transform, "RivalCoverage", new Vector2(0f, -320f), new Color(1f, 0.45f, 0.7f));
 
             var telemetry = canvasGO.AddComponent<HudTelemetry>();
             telemetry.Configure(arenaPainter, playerPainter, comboLabel, scoreLabel, livesLabel, playerSlider, rivalSlider);
+
+            var sessionHud = canvasGO.AddComponent<SessionStatusHud>();
+            sessionHud.Configure(sessionManager, roundLabel, roundTimer, roundTimerText, sessionScoreLabel);
 
             CreateOverchargeButton(canvasGO.transform, playerPainter);
         }
