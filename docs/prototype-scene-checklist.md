@@ -22,7 +22,7 @@ SceneRoot
 │  ├─ ComboLabel / ScoreLabel / LivesLabel (HudTelemetry refs)
 │  ├─ CoverageBars (Slider x2 for player/rival)
 │  └─ OverchargeButton (Button + Image + OverchargeButton script)
-└─ Systems (MatchStateController, EventSystem, Volume, etc.)
+└─ Systems (MatchStateController, PrototypeSessionManager, EventSystem, Volume, etc.)
 ```
 
 ## 3. Wiring Steps
@@ -44,6 +44,9 @@ SceneRoot
    - `OverchargeButton`: hook `playerPainter`, assign the gauge fill `Image`, tweak colors.
 6. **MatchStateController**
    - Wire `onPlayerCoverage` / `onRivalCoverage` into slider `SetValueWithoutNotify` if you prefer events over polling.
+7. **PrototypeSessionManager (optional but recommended)**
+   - Drop it under Systems, assign `ArenaPainter`, `PlayerPainter`, `PlayerOrbitMover`, and `RivalSpiritController`.
+   - Defaults to a best-of-three loop (20s rounds, 70% coverage to win) and resets coverage/lives between rounds.
 
 ## 4. Debug Helpers
 - Add a `Gizmos` toggle or `DebugOverlay` script to view player angle/radius during tuning.

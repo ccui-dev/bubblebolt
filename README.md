@@ -22,6 +22,7 @@ unity/                   ← prototype-ready Unity content (Assets-only for now)
    - A `RivalSpiritController` on a separate ghost to test steal/back-pressure behavior.
 4. **Tuning** – Instantiate `PrototypeTuning` via `Create → BubbleBolt → Prototype Tuning`. Assign the asset anywhere scripts expect it.
 5. **Build Targets** – Plan to validate on iOS + Android portrait builds; keep `FixedDeltaTime` at 60 FPS for consistent feel.
+6. **Session Flow** – Add `PrototypeSessionManager` (or enable the toggle on `PrototypeSceneBootstrap`) to auto-run a best-of-three loop with coverage win conditions and round timers.
 
 ## Inspecting the Unity content with Unity 6.4
 

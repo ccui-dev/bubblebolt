@@ -169,6 +169,23 @@ namespace BubbleBolt.Gameplay.Arena
             return owned / (float)sectors.Count;
         }
 
+        public void ResetCoverage()
+        {
+            if (sectors.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < sectors.Count; i++)
+            {
+                SectorState state = sectors[i];
+                state.owner = SectorOwner.Neutral;
+                state.playerFill = 0f;
+                state.rivalFill = 0f;
+                sectors[i] = state;
+            }
+        }
+
         private int GetSectorIndex(float angleRadians)
         {
             float normalized = Mathf.Repeat(angleRadians, Mathf.PI * 2f) / (Mathf.PI * 2f);

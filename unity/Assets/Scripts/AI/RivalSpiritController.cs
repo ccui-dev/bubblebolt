@@ -41,6 +41,19 @@ namespace BubbleBolt.AI
             arenaPainter.Paint(SectorOwner.Rival, _theta, targetSpeed01, dt, false);
         }
 
+        public void ResetForRound()
+        {
+            _theta = 0f;
+            _angularSpeed = 0f;
+
+            if (arenaCenter != null)
+            {
+                Vector3 offset = new(Mathf.Cos(_theta) * orbitRadius, Mathf.Sin(_theta) * orbitRadius, 0f);
+                transform.position = arenaCenter.position + offset;
+                transform.up = offset.sqrMagnitude > 0f ? offset.normalized : Vector3.right;
+            }
+        }
+
         public void Configure(PrototypeTuning tuningAsset, ArenaPainter painter, Transform center)
         {
             tuning = tuningAsset;

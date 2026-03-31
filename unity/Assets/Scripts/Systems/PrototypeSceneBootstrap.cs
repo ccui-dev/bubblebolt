@@ -30,6 +30,14 @@ namespace BubbleBolt.Systems
         [Header("Runtime HUD")]
         [SerializeField] private bool spawnRuntimeHud = true;
 
+        [Header("Round Flow")]
+        [SerializeField] private bool spawnSessionManager = true;
+        [SerializeField, Range(1, 5)] private int sessionRounds = 3;
+        [SerializeField, Min(5f)] private float sessionRoundDuration = 20f;
+        [SerializeField, Range(0.55f, 0.95f)] private float sessionCoverageToWin = 0.7f;
+        [SerializeField, Range(0f, 0.2f)] private float sessionCoverageDeadband = 0.03f;
+        [SerializeField, Min(0f)] private float sessionInterRoundDelay = 2f;
+
         private void Awake()
         {
             if (FindObjectOfType<PlayerPainter>() != null)
@@ -92,6 +100,14 @@ namespace BubbleBolt.Systems
             systemsRoot.SetParent(root, false);
             var matchState = systemsRoot.gameObject.AddComponent<MatchStateController>();
             matchState.Configure(arenaPainter, playerPainter);
+
+            if (spawnSessionManager)
+            {
+                var sessionManager = systemsRoot.gameObject.AddComponent<PrototypeSessionManager>();
+                sessionManager.Configure(arenaPainter, playerPainter, orbitMover, rivalController);
+                sessionManager.ApplyRoundSettings(sessionRounds, sessionRoundDuration, sessionCoverageToWin, sessionCoverageDeadband, sessionInterRoundDelay);
+                sessionManager.BeginSession();
+            }
 
             if (spawnRuntimeHud)
             {

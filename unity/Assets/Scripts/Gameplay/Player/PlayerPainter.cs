@@ -55,13 +55,14 @@ namespace BubbleBolt.Gameplay.Player
             }
         }
 
-        private void ResetState()
+        private void ResetState(bool preserveScore = false)
         {
             if (tuning == null)
             {
                 return;
             }
 
+            float previousScore = preserveScore ? _score : 0f;
             _lives = tuning.maxLives;
             _overchargeGauge = 0f;
             _overchargeActive = false;
@@ -69,8 +70,15 @@ namespace BubbleBolt.Gameplay.Player
             _combo = 0;
             _perfectArcRun = 0;
             _lastClaimedSector = -1;
-            _score = 0f;
+            _score = previousScore;
             _invulnerabilityTimer = 0f;
+        }
+
+        public void ResetForNewRound(bool preserveScore = true)
+        {
+            ResetState(preserveScore);
+            onComboChanged?.Invoke(_combo);
+            onOverchargeChanged?.Invoke(_overchargeGauge);
         }
 
         private void Update()

@@ -51,9 +51,7 @@ namespace BubbleBolt.Gameplay.Player
                 return;
             }
 
-            _theta = 0f;
-            _targetRadius = tuning.targetRadius;
-            _currentRadius = _targetRadius;
+            ResetOrbit();
         }
 
         public void ApplyInput(Vector2 smoothedDelta, float deltaTime)
@@ -97,6 +95,27 @@ namespace BubbleBolt.Gameplay.Player
 
             transform.position = arenaCenter.position + polar + driftOffset;
             transform.up = polar.normalized;
+        }
+
+        public void ResetOrbit(bool warpToStart = true)
+        {
+            if (tuning == null)
+            {
+                return;
+            }
+
+            _theta = 0f;
+            _angularVelocity = 0f;
+            _targetRadius = tuning.targetRadius;
+            _currentRadius = _targetRadius;
+
+            if (warpToStart && arenaCenter != null)
+            {
+                Vector3 polar = PolarToCartesian(_currentRadius, _theta);
+                transform.position = arenaCenter.position + polar;
+                Vector3 forward = polar.sqrMagnitude > 0f ? polar.normalized : Vector3.up;
+                transform.up = forward;
+            }
         }
 
         private static Vector3 PolarToCartesian(float radius, float theta)
