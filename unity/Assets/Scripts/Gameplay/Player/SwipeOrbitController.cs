@@ -13,6 +13,7 @@ namespace BubbleBolt.Gameplay.Player
         private Vector2 _smoothedDelta;
         private Vector2 _lastPointerPos;
         private bool _pointerActive;
+        private bool _inputEnabled = true;
 
         private void Awake()
         {
@@ -32,6 +33,13 @@ namespace BubbleBolt.Gameplay.Player
         {
             if (tuning == null || _mover == null)
             {
+                return;
+            }
+
+            if (!_inputEnabled)
+            {
+                _smoothedDelta = Vector2.zero;
+                _mover.ApplyInput(Vector2.zero, Time.deltaTime);
                 return;
             }
 
@@ -87,6 +95,15 @@ namespace BubbleBolt.Gameplay.Player
             _pointerActive = false;
             _lastPointerPos = Vector2.zero;
             return Vector2.zero;
+        }
+
+        public void SetInputEnabled(bool enabled)
+        {
+            _inputEnabled = enabled;
+            if (!enabled)
+            {
+                _smoothedDelta = Vector2.zero;
+            }
         }
     }
 }

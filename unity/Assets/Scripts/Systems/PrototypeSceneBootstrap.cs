@@ -112,7 +112,7 @@ namespace BubbleBolt.Systems
 
             if (spawnRuntimeHud)
             {
-                BuildHud(root, arenaPainter, playerPainter, sessionManager);
+                BuildHud(root, arenaPainter, playerPainter, sessionManager, swipeController);
             }
         }
 
@@ -191,7 +191,7 @@ namespace BubbleBolt.Systems
             line.material.color = new Color(0.2f, 0.6f, 1f, 0.4f);
         }
 
-        private void BuildHud(Transform parent, ArenaPainter arenaPainter, PlayerPainter playerPainter, PrototypeSessionManager sessionManager)
+        private void BuildHud(Transform parent, ArenaPainter arenaPainter, PlayerPainter playerPainter, PrototypeSessionManager sessionManager, SwipeOrbitController swipeController)
         {
             GameObject canvasGO = new("HUD_Canvas");
             canvasGO.transform.SetParent(parent, false);
@@ -234,6 +234,25 @@ namespace BubbleBolt.Systems
 
             var sessionHud = canvasGO.AddComponent<SessionStatusHud>();
             sessionHud.Configure(sessionManager, roundLabel, roundTimer, roundTimerText, sessionScoreLabel);
+
+            GameObject tutorialPanel = new("TutorialOverlay");
+            tutorialPanel.transform.SetParent(canvasGO.transform, false);
+            var tutorialRect = tutorialPanel.AddComponent<RectTransform>();
+            tutorialRect.anchorMin = tutorialRect.anchorMax = new Vector2(0.5f, 0.5f);
+            tutorialRect.pivot = new Vector2(0.5f, 0.5f);
+            tutorialRect.sizeDelta = new Vector2(560f, 520f);
+            var tutorialBg = tutorialPanel.AddComponent<Image>();
+            tutorialBg.color = new Color(0f, 0f, 0f, 0.7f);
+            tutorialPanel.SetActive(false);
+
+            TextMeshProUGUI tutorialText = CreateLabel(tutorialRect, "TutorialText", new Vector2(0f, 60f), TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f));
+            tutorialText.fontSize = 44f;
+            tutorialText.text = "Swipe to orbit around the arena.\nTap Overcharge when the gauge is full.";
+
+            Button tutorialButton = CreateButton(tutorialRect, "TutorialButton", new Vector2(0f, -150f), new Vector2(360f, 110f), "Let's Go");
+
+            var tutorialOverlay = canvasGO.AddComponent<PrototypeTutorialOverlay>();
+            tutorialOverlay.Configure(sessionManager, swipeController, tutorialPanel, tutorialText, tutorialButton);
 
             GameObject summaryPanel = new("SessionSummary");
             summaryPanel.transform.SetParent(canvasGO.transform, false);
