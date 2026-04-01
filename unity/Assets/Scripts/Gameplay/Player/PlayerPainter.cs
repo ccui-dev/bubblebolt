@@ -15,6 +15,8 @@ namespace BubbleBolt.Gameplay.Player
         [SerializeField] private UnityEvent<int> onComboChanged;
         [SerializeField] private UnityEvent<float> onOverchargeChanged;
 
+        public event Action OverchargeTriggered;
+
         private PlayerOrbitMover _orbitMover;
         private float _overchargeGauge;
         private bool _overchargeActive;
@@ -152,6 +154,7 @@ namespace BubbleBolt.Gameplay.Player
             _overchargeActive = true;
             _overchargeTimer = tuning.overchargeDuration;
             onOverchargeChanged?.Invoke(_overchargeGauge);
+            OverchargeTriggered?.Invoke();
         }
 
         public void RegisterHit()

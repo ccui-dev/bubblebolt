@@ -110,6 +110,9 @@ namespace BubbleBolt.Systems
                 sessionManager.BeginSession();
             }
 
+            var analytics = systemsRoot.gameObject.AddComponent<PrototypeAnalyticsLogger>();
+            analytics.Configure(sessionManager, playerPainter);
+
             if (spawnRuntimeHud)
             {
                 BuildHud(root, arenaPainter, playerPainter, sessionManager, swipeController);
