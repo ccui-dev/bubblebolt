@@ -51,8 +51,9 @@ Use these steps if you want to open/inspect the project in the bleeding-edge Uni
 - Arena painting data model with combo + perfect-arc tracking and Overcharge gauge hooks.
 - Rival ghost loop that reacts to player coverage deltas and attempts to steal sectors.
 - ScriptableObject for exposing all balancing constants in one place.
+- Orbiting hazard ring with pulsing telegraphs so damage windows stay readable.
 
 Next milestones:
-- Wire actual Unity scene/prefabs and drop temp art.
-- Add hazard spawners + Overcharge VFX triggers.
-- Connect analytics events according to the GDD.
+- Replace the primitive bubbles/track with lightweight prefabs + temp art and juice passes.
+- Layer Overcharge VFX/SFX (plus a clearer on-hit reaction) now that the loop is playable.
+- Pipe analytics events to the real schema/backend once it lands.

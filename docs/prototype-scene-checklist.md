@@ -41,6 +41,7 @@ SceneRoot
 4. **ArenaHazard**
    - Position each hazard on the ring, rotating its Z-axis to match the angular span center.
    - Tune `radius`, `angularHalfExtent`, and optional `onHit` events for juice.
+   - Add `HazardOrbitController` to the hazards parent so they keep circling the arena, and sprinkle `HazardMarkerPulse` on each marker for readable telegraphs.
 5. **UI**
    - `HudTelemetry`: set `arenaPainter`, `playerPainter`, text labels, and coverage sliders.
    - `OverchargeButton`: hook `playerPainter`, assign the gauge fill `Image`, tweak colors.

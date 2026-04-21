@@ -27,6 +27,16 @@ namespace BubbleBolt.Systems
         [SerializeField, Range(5f, 90f)] private float hazardAngularSpanDegrees = 30f;
         [SerializeField, Range(0.01f, 0.2f)] private float hazardRadiusTolerance = 0.07f;
 
+        [Header("Hazards")]
+        [SerializeField, Range(2f, 60f)] private float hazardOrbitBaseSpeed = 24f;
+        [SerializeField, Range(0f, 30f)] private float hazardOrbitVariance = 12f;
+        [SerializeField] private Vector2 hazardOrbitRetargetInterval = new Vector2(3.5f, 6.5f);
+        [SerializeField, Range(1f, 120f)] private float hazardOrbitAcceleration = 45f;
+        [SerializeField] private Color hazardBaseColor = new Color(1f, 0.45f, 0.45f, 1f);
+        [SerializeField] private Color hazardPulseColor = new Color(1f, 0.9f, 0.35f, 1f);
+        [SerializeField, Range(0.1f, 6f)] private float hazardPulseSpeed = 2.4f;
+        [SerializeField, Range(0f, 0.6f)] private float hazardPulseScale = 0.25f;
+
         [Header("Runtime HUD")]
         [SerializeField] private bool spawnRuntimeHud = true;
 
@@ -89,6 +99,8 @@ namespace BubbleBolt.Systems
 
             Transform hazardsRoot = new GameObject("Hazards").transform;
             hazardsRoot.SetParent(root, false);
+            var hazardOrbit = hazardsRoot.gameObject.AddComponent<HazardOrbitController>();
+            hazardOrbit.Configure(hazardOrbitBaseSpeed, hazardOrbitVariance, hazardOrbitRetargetInterval, hazardOrbitAcceleration, true);
             SpawnHazards(hazardsRoot, orbitMover, playerPainter);
 
             GameObject rivalGhost = CreateBubble("RivalGhost", rivalMaterial, new Color(1f, 0.65f, 0.85f));
@@ -195,8 +207,10 @@ namespace BubbleBolt.Systems
             marker.transform.SetParent(parent, false);
             marker.transform.localScale = new Vector3(0.08f, 0.2f, 0.02f);
             marker.transform.localPosition = Vector3.zero;
+
             var renderer = marker.GetComponent<Renderer>();
-            renderer.material.color = new Color(1f, 0.4f, 0.4f, 1f);
+            var pulse = marker.AddComponent<HazardMarkerPulse>();
+            pulse.Initialize(renderer, hazardBaseColor, hazardPulseColor, hazardPulseSpeed, hazardPulseScale);
         }
 
         private void CreateTrackVisual(Transform parent)
