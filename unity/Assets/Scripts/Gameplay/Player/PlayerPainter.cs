@@ -16,6 +16,7 @@ namespace BubbleBolt.Gameplay.Player
         [SerializeField] private UnityEvent<float> onOverchargeChanged;
 
         public event Action OverchargeTriggered;
+        public event Action<int> DamageTaken;
 
         private PlayerOrbitMover _orbitMover;
         private float _overchargeGauge;
@@ -169,6 +170,7 @@ namespace BubbleBolt.Gameplay.Player
             _perfectArcRun = 0;
             onComboChanged?.Invoke(_combo);
             _invulnerabilityTimer = tuning.invulnerabilitySeconds;
+            DamageTaken?.Invoke(_lives);
         }
 
         private static bool IsAdjacent(int lastIndex, int currentIndex, int sectorCount)

@@ -53,6 +53,9 @@ SceneRoot
 7. **PrototypeSessionManager (optional but recommended)**
    - Drop it under Systems, assign `ArenaPainter`, `PlayerPainter`, `PlayerOrbitMover`, and `RivalSpiritController`.
    - Defaults to a best-of-three loop (20s rounds, 70% coverage to win) and resets coverage/lives between rounds.
+8. **Juice Layer (optional)**
+   - Add `PrototypeTonePlayer` (plus an `AudioSource`) under Systems and hook it into `PlayerFeedbackController` so Overcharge/damage fire procedural tones.
+   - Keep a `PrototypeCameraShake` on the Main Camera so hits add a quick screen shake.
 
 ## 4. Debug Helpers
 - Add a `Gizmos` toggle or `DebugOverlay` script to view player angle/radius during tuning.

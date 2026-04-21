@@ -48,6 +48,8 @@ namespace BubbleBolt.Systems
         [SerializeField, Range(0f, 0.2f)] private float sessionCoverageDeadband = 0.03f;
         [SerializeField, Min(0f)] private float sessionInterRoundDelay = 2f;
 
+        private PrototypeCameraShake cameraShake;
+
         private void Awake()
         {
             EnsureCamera();
@@ -96,6 +98,7 @@ namespace BubbleBolt.Systems
 
             var glow = playerBubble.AddComponent<PlayerOverchargeGlow>();
             glow.Configure(playerPainter, new Color(0.8f, 0.95f, 1f), new Color(1f, 0.65f, 0.2f));
+            var feedback = playerBubble.AddComponent<PlayerFeedbackController>();
 
             Transform hazardsRoot = new GameObject("Hazards").transform;
             hazardsRoot.SetParent(root, false);
@@ -127,6 +130,9 @@ namespace BubbleBolt.Systems
             var analytics = systemsRoot.gameObject.AddComponent<PrototypeAnalyticsLogger>();
             analytics.Configure(sessionManager, playerPainter);
 
+            var tonePlayer = systemsRoot.gameObject.AddComponent<PrototypeTonePlayer>();
+            feedback.Configure(playerPainter, tonePlayer, cameraShake);
+
             if (spawnRuntimeHud)
             {
                 BuildHud(root, arenaPainter, playerPainter, sessionManager, swipeController);
@@ -145,6 +151,11 @@ namespace BubbleBolt.Systems
                 cameraObject.AddComponent<AudioListener>();
             }
 
+            if (activeCamera.GetComponent<AudioListener>() == null)
+            {
+                activeCamera.gameObject.AddComponent<AudioListener>();
+            }
+
             activeCamera.orthographic = true;
             activeCamera.orthographicSize = Mathf.Max(1.2f, arenaRadius * 1.8f);
             activeCamera.transform.position = new Vector3(0f, 0f, -5f);
@@ -153,6 +164,13 @@ namespace BubbleBolt.Systems
             activeCamera.backgroundColor = new Color(0.02f, 0.02f, 0.02f, 1f);
             activeCamera.nearClipPlane = 0.1f;
             activeCamera.farClipPlane = 10f;
+
+            var shaker = activeCamera.GetComponent<PrototypeCameraShake>();
+            if (shaker == null)
+            {
+                shaker = activeCamera.gameObject.AddComponent<PrototypeCameraShake>();
+            }
+            cameraShake = shaker;
         }
 
         private GameObject CreateBubble(string name, Material overrideMaterial, Color fallbackColor)
@@ -181,7 +199,7 @@ namespace BubbleBolt.Systems
             {
                 float angleDeg = (360f / Mathf.Max(1, hazardCount)) * i;
                 float angleRad = angleDeg * Mathf.Deg2Rad;
-                Vector3 direction = new(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0f);
+                Vector3 direction = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0f);
 
                 GameObject hazardObject = new GameObject($"Hazard_{i:00}");
                 hazardObject.transform.SetParent(parent, false);

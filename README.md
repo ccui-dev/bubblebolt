@@ -52,6 +52,7 @@ Use these steps if you want to open/inspect the project in the bleeding-edge Uni
 - Rival ghost loop that reacts to player coverage deltas and attempts to steal sectors.
 - ScriptableObject for exposing all balancing constants in one place.
 - Orbiting hazard ring with pulsing telegraphs so damage windows stay readable.
+- Procedural tone bed + camera shake/damage flash hooks for Overcharge activations and hazard hits.
 
 Next milestones:
 - Replace the primitive bubbles/track with lightweight prefabs + temp art and juice passes.
