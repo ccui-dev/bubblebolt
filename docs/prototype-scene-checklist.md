@@ -4,6 +4,8 @@ _Last updated: 2026-03-24_
 
 Use this to assemble the first playable greybox inside Unity 2022.3 LTS.
 
+> **Shortcut:** Open `Assets/Scenes/PrototypeBootstrapScene.unity` to see everything auto-instantiated by `PrototypeSceneBootstrap`. Use this checklist if you need to hand-wire a custom layout or replace pieces of the generated graph.
+
 ## 1. Project Prep
 - Enable **Input System** (Edit → Project Settings → Player → Active Input Handling → "Input System Package").
 - Install **TextMeshPro** essentials for HUD text.

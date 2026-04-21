@@ -7,22 +7,19 @@ Early design + prototype work for the Bubble Bolt hybrid-casual mobile title. Th
 ```
 README.md                ← project overview + setup steps
 docs/                    ← design documentation (GDD, control spec, UA brief, etc.)
-unity/                   ← prototype-ready Unity content (Assets-only for now)
+unity/                   ← full Unity project (Assets + ProjectSettings + Packages)
 ```
 
-> **Note:** The Unity folder only contains authored content (`Assets/…`). Create/open a Unity 2022.3 LTS project and drop these folders into it, or point a new project directly at `unity/` to let the editor generate `Library`, `Packages`, and `ProjectSettings` locally.
+> **Note:** `unity/` already contains `Assets`, `ProjectSettings`, and `Packages`. Open that folder directly from Unity Hub (targeting 2022.3 LTS), load `Assets/Scenes/PrototypeBootstrapScene.unity`, and hit Play to let `PrototypeSceneBootstrap` assemble the greybox automatically.
 
 ## Getting Started
 
-1. **Editor Version** – Target Unity **2022.3 LTS**. (URP vs Built-in is undecided; the prototype scripts are renderer-agnostic.)
-2. **Input System** – Enable the new Input System package (or Input System + legacy if you need UI). The scripts read from `UnityEngine.Input`. Switching to `InputAction`s can happen once the project is in editor.
-3. **Scene Setup** – Create an empty scene with:
-   - An `ArenaPainter` on the arena root (set `sectorCount = 24`).
-   - A `PlayerOrbitMover` + `SwipeOrbitController` + `PlayerPainter` on the player bubble.
-   - A `RivalSpiritController` on a separate ghost to test steal/back-pressure behavior.
-4. **Tuning** – Instantiate `PrototypeTuning` via `Create → BubbleBolt → Prototype Tuning`. Assign the asset anywhere scripts expect it.
-5. **Build Targets** – Plan to validate on iOS + Android portrait builds; keep `FixedDeltaTime` at 60 FPS for consistent feel.
-6. **Session Flow** – Add `PrototypeSessionManager` (or enable the toggle on `PrototypeSceneBootstrap`) to auto-run a best-of-three loop with coverage win conditions and round timers.
+1. **Editor Version** – Target Unity **2022.3 LTS**. The repo ships with matching `ProjectSettings` + `Packages`, so use that exact stream in Unity Hub to avoid upgrade prompts.
+2. **Open the packaged project** – In Unity Hub choose **Open → Add project from disk** and select the `unity/` folder. No asset copying is required.
+3. **Run the bootstrap scene** – Open `Assets/Scenes/PrototypeBootstrapScene.unity`. The only GameObject in the scene hosts `PrototypeSceneBootstrap`, which spawns the arena, player/rival orbits, hazards, HUD, tutorial overlay, analytics logger, and best-of-three session logic automatically when you press Play. Use the inspector on this component to tweak hazard counts, arena radius, session durations, etc.
+4. **Input System** – The new Input System package is already listed in `manifest.json` and `Active Input Handling` is set to Input System only. Flip it to "Both" if you need legacy UI events.
+5. **Tuning** – (Optional) Create a `PrototypeTuning` asset via **Create → BubbleBolt → Prototype Tuning** inside `Assets/ScriptableObjects`. Assign it to the bootstrapper if you want deterministic parameter sets; otherwise the script generates a runtime clone.
+6. **Build Targets** – Plan to validate iOS + Android portrait builds at 60 FPS (`FixedDeltaTime = 0.01666`). `PrototypeSessionManager` is enabled by default to loop rounds, but you can disable it from the inspector if you want a single freeplay session.
 
 ## Inspecting the Unity content with Unity 6.4
 
@@ -38,12 +35,12 @@ Use these steps if you want to open/inspect the project in the bleeding-edge Uni
    cp -R unity unity-6.4-preview
    ```
 3. **Install Unity 6.4** – Via Unity Hub, install the 6.4 editor (or newer) with iOS + Android modules if you plan to build.
-4. **Add the project to Hub** – In Unity Hub, click **Open → Add project from disk** and select the duplicated folder (`unity-6.4-preview` or the original `unity` directory if you skipped step 2). Unity will generate `Library/`, `ProjectSettings/`, and `Packages/` automatically.
+4. **Add the project to Hub** – In Unity Hub, click **Open → Add project from disk** and select the duplicated folder (`unity-6.4-preview` or the original `unity` directory if you skipped step 2). Unity will regenerate the `Library/` folder automatically (the repo already includes `ProjectSettings/` + `Packages/`).
 5. **Accept the upgrade prompts** – When Unity asks to update the project version, confirm. Let the editor re-import assets; this can take a couple of minutes on the first launch.
 6. **Install required packages** – Open `Window → Package Manager`:
    - Ensure **Input System**, **TextMeshPro**, and **UGUI** are installed/enabled.
    - Click **Project Settings → Player → Active Input Handling** and choose `Input System Package` or `Both`.
-7. **Wire the scene** – Create a new scene (or reuse one) and follow `docs/prototype-scene-checklist.md` to place `ArenaPainter`, `PlayerOrbitMover`, hazards, and the HUD scripts.
+7. **Open the bootstrap scene** – Load `Assets/Scenes/PrototypeBootstrapScene.unity` (or follow `docs/prototype-scene-checklist.md` if you want to assemble a custom scene).
 8. **Verify play mode** – Enter Play Mode, drag with the mouse (or use Device Simulator touch input) to confirm orbiting, painting, hazards, and UI telemetry behave as expected.
 
 > **Tip:** Keep the duplicated 6.4 folder out of `git` (it lives alongside `unity/` but is ignored) so upgrades don’t interfere with the main branch.

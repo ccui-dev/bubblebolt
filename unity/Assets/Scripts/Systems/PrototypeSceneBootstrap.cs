@@ -40,6 +40,8 @@ namespace BubbleBolt.Systems
 
         private void Awake()
         {
+            EnsureCamera();
+
             if (FindObjectOfType<PlayerPainter>() != null)
             {
                 // Scene already assembled.
@@ -119,6 +121,28 @@ namespace BubbleBolt.Systems
             }
         }
 
+        private void EnsureCamera()
+        {
+            Camera activeCamera = Camera.main;
+
+            if (activeCamera == null)
+            {
+                GameObject cameraObject = new GameObject("PrototypeCamera");
+                cameraObject.tag = "MainCamera";
+                activeCamera = cameraObject.AddComponent<Camera>();
+                cameraObject.AddComponent<AudioListener>();
+            }
+
+            activeCamera.orthographic = true;
+            activeCamera.orthographicSize = Mathf.Max(1.2f, arenaRadius * 1.8f);
+            activeCamera.transform.position = new Vector3(0f, 0f, -5f);
+            activeCamera.transform.rotation = Quaternion.identity;
+            activeCamera.clearFlags = CameraClearFlags.SolidColor;
+            activeCamera.backgroundColor = new Color(0.02f, 0.02f, 0.02f, 1f);
+            activeCamera.nearClipPlane = 0.1f;
+            activeCamera.farClipPlane = 10f;
+        }
+
         private GameObject CreateBubble(string name, Material overrideMaterial, Color fallbackColor)
         {
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -147,7 +171,7 @@ namespace BubbleBolt.Systems
                 float angleRad = angleDeg * Mathf.Deg2Rad;
                 Vector3 direction = new(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0f);
 
-                GameObject hazardObject = new($"Hazard_{i:00}");
+                GameObject hazardObject = new GameObject($"Hazard_{i:00}");
                 hazardObject.transform.SetParent(parent, false);
                 hazardObject.transform.localPosition = direction * arenaRadius;
                 hazardObject.transform.localRotation = Quaternion.Euler(0f, 0f, angleDeg);
@@ -177,7 +201,7 @@ namespace BubbleBolt.Systems
 
         private void CreateTrackVisual(Transform parent)
         {
-            GameObject track = new("OrbitTrack");
+            GameObject track = new GameObject("OrbitTrack");
             track.transform.SetParent(parent, false);
             var line = track.AddComponent<LineRenderer>();
             line.loop = true;
@@ -196,7 +220,7 @@ namespace BubbleBolt.Systems
 
         private void BuildHud(Transform parent, ArenaPainter arenaPainter, PlayerPainter playerPainter, PrototypeSessionManager sessionManager, SwipeOrbitController swipeController)
         {
-            GameObject canvasGO = new("HUD_Canvas");
+            GameObject canvasGO = new GameObject("HUD_Canvas");
             canvasGO.transform.SetParent(parent, false);
 
             var canvas = canvasGO.AddComponent<Canvas>();
@@ -238,7 +262,7 @@ namespace BubbleBolt.Systems
             var sessionHud = canvasGO.AddComponent<SessionStatusHud>();
             sessionHud.Configure(sessionManager, roundLabel, roundTimer, roundTimerText, sessionScoreLabel);
 
-            GameObject tutorialPanel = new("TutorialOverlay");
+            GameObject tutorialPanel = new GameObject("TutorialOverlay");
             tutorialPanel.transform.SetParent(canvasGO.transform, false);
             var tutorialRect = tutorialPanel.AddComponent<RectTransform>();
             tutorialRect.anchorMin = tutorialRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -257,7 +281,7 @@ namespace BubbleBolt.Systems
             var tutorialOverlay = canvasGO.AddComponent<PrototypeTutorialOverlay>();
             tutorialOverlay.Configure(sessionManager, swipeController, tutorialPanel, tutorialText, tutorialButton);
 
-            GameObject summaryPanel = new("SessionSummary");
+            GameObject summaryPanel = new GameObject("SessionSummary");
             summaryPanel.transform.SetParent(canvasGO.transform, false);
             var summaryRect = summaryPanel.AddComponent<RectTransform>();
             summaryRect.anchorMin = summaryRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -283,7 +307,7 @@ namespace BubbleBolt.Systems
 
         private TextMeshProUGUI CreateLabel(Transform parent, string name, Vector2 anchoredPosition, TextAlignmentOptions alignment, Vector2 anchor)
         {
-            GameObject go = new(name);
+            GameObject go = new GameObject(name);
             go.transform.SetParent(parent, false);
 
             var text = go.AddComponent<TextMeshProUGUI>();
@@ -313,7 +337,7 @@ namespace BubbleBolt.Systems
 
         private Button CreateButton(Transform parent, string name, Vector2 anchoredPosition, Vector2 size, string labelText)
         {
-            GameObject go = new(name);
+            GameObject go = new GameObject(name);
             go.transform.SetParent(parent, false);
 
             RectTransform rect = go.AddComponent<RectTransform>();
@@ -338,7 +362,7 @@ namespace BubbleBolt.Systems
 
         private Slider CreateSlider(Transform parent, string name, Vector2 anchoredPosition, Color fillColor)
         {
-            GameObject go = new(name);
+            GameObject go = new GameObject(name);
             go.transform.SetParent(parent, false);
 
             RectTransform rect = go.AddComponent<RectTransform>();
@@ -351,7 +375,7 @@ namespace BubbleBolt.Systems
             Image background = go.AddComponent<Image>();
             background.color = new Color(0f, 0f, 0f, 0.3f);
 
-            GameObject fillGO = new("Fill");
+            GameObject fillGO = new GameObject("Fill");
             fillGO.transform.SetParent(rect, false);
             RectTransform fillRect = fillGO.AddComponent<RectTransform>();
             fillRect.anchorMin = new Vector2(0f, 0f);
@@ -379,7 +403,7 @@ namespace BubbleBolt.Systems
 
         private void CreateOverchargeButton(Transform parent, PlayerPainter playerPainter)
         {
-            GameObject buttonGO = new("OverchargeButton");
+            GameObject buttonGO = new GameObject("OverchargeButton");
             buttonGO.transform.SetParent(parent, false);
 
             RectTransform rect = buttonGO.AddComponent<RectTransform>();
@@ -395,7 +419,7 @@ namespace BubbleBolt.Systems
             Button button = buttonGO.AddComponent<Button>();
             button.transition = Selectable.Transition.ColorTint;
 
-            GameObject fillGO = new("Fill");
+            GameObject fillGO = new GameObject("Fill");
             fillGO.transform.SetParent(rect, false);
             RectTransform fillRect = fillGO.AddComponent<RectTransform>();
             fillRect.anchorMin = new Vector2(0.08f, 0.15f);
@@ -425,7 +449,7 @@ namespace BubbleBolt.Systems
                 return;
             }
 
-            GameObject es = new("EventSystem");
+            GameObject es = new GameObject("EventSystem");
             es.AddComponent<EventSystem>();
             es.AddComponent<StandaloneInputModule>();
         }
