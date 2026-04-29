@@ -14,6 +14,10 @@ namespace BubbleBolt.Gameplay.Player
         [SerializeField] private float damageToneDuration = 0.28f;
         [SerializeField, Range(0f, 1f)] private float overchargeShake = 0.12f;
         [SerializeField, Range(0f, 1f)] private float damageShake = 0.35f;
+        [SerializeField] private float overchargeLoopFrequency = 360f;
+        [SerializeField, Range(0f, 1f)] private float overchargeLoopVolume = 0.25f;
+
+        private bool _loopActive;
 
         private void Awake()
         {
@@ -31,6 +35,12 @@ namespace BubbleBolt.Gameplay.Player
         private void OnDisable()
         {
             Detach();
+            StopLoop();
+        }
+
+        private void Update()
+        {
+            UpdateLoop();
         }
 
         public void Configure(PlayerPainter painter, PrototypeTonePlayer tone, PrototypeCameraShake shake)
@@ -74,6 +84,36 @@ namespace BubbleBolt.Gameplay.Player
         {
             tonePlayer?.PlayTone(damageToneFrequency, damageToneDuration, 1f);
             cameraShake?.AddShake(damageShake);
+        }
+
+        private void UpdateLoop()
+        {
+            if (playerPainter == null || tonePlayer == null)
+            {
+                return;
+            }
+
+            bool shouldLoop = playerPainter.OverchargeActive;
+            if (shouldLoop && !_loopActive)
+            {
+                tonePlayer.StartLoop(overchargeLoopFrequency, overchargeLoopVolume);
+                _loopActive = true;
+            }
+            else if (!shouldLoop && _loopActive)
+            {
+                StopLoop();
+            }
+        }
+
+        private void StopLoop()
+        {
+            if (!_loopActive)
+            {
+                return;
+            }
+
+            tonePlayer?.StopLoop();
+            _loopActive = false;
         }
     }
 }

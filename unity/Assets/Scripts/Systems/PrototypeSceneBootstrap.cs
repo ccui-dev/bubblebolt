@@ -20,12 +20,29 @@ namespace BubbleBolt.Systems
         [SerializeField] private PrototypeTuning tuningAsset;
         [SerializeField] private Material playerMaterial;
         [SerializeField] private Material rivalMaterial;
+        [SerializeField] private Color playerFallbackColor = new Color(0.8f, 0.95f, 1f);
+        [SerializeField] private Color rivalFallbackColor = new Color(1f, 0.65f, 0.85f);
+
+        [Header("Bubble Styling")]
+        [SerializeField, Range(0.05f, 0.3f)] private float playerBubbleScale = 0.18f;
+        [SerializeField, Range(0.05f, 0.3f)] private float rivalBubbleScale = 0.13f;
+        [SerializeField, Range(0.1f, 1.5f)] private float bubbleTrailTime = 0.65f;
+        [SerializeField] private Gradient playerTrailGradient = CreateGradient(new Color(0.1f, 0.8f, 1f), new Color(0.1f, 0.1f, 0.4f), 0.9f, 0f);
+        [SerializeField] private Gradient rivalTrailGradient = CreateGradient(new Color(1f, 0.45f, 0.8f), new Color(0.25f, 0.05f, 0.25f), 0.9f, 0f);
+        [SerializeField] private Gradient playerAuraGradient = CreateGradient(new Color(0.4f, 0.9f, 1f), new Color(0.1f, 0.2f, 0.45f), 0.75f, 0.05f);
+        [SerializeField] private Gradient rivalAuraGradient = CreateGradient(new Color(1f, 0.4f, 0.75f), new Color(0.25f, 0.05f, 0.3f), 0.6f, 0.03f);
 
         [Header("Layout")]
         [SerializeField, Range(0.4f, 1.2f)] private float arenaRadius = 0.8f;
         [SerializeField, Range(1, 8)] private int hazardCount = 3;
         [SerializeField, Range(5f, 90f)] private float hazardAngularSpanDegrees = 30f;
         [SerializeField, Range(0.01f, 0.2f)] private float hazardRadiusTolerance = 0.07f;
+
+        [Header("Track Visual")]
+        [SerializeField] private Gradient trackGradient = CreateGradient(new Color(0.2f, 0.7f, 1f), new Color(0.15f, 0.2f, 0.45f), 0.6f, 0.2f);
+        [SerializeField, Range(0.005f, 0.1f)] private float trackWidth = 0.02f;
+        [SerializeField, Range(0f, 1f)] private float trackPulseAmount = 0.25f;
+        [SerializeField, Range(16, 128)] private int trackSegments = 96;
 
         [Header("Hazards")]
         [SerializeField, Range(2f, 60f)] private float hazardOrbitBaseSpeed = 24f;
@@ -34,8 +51,10 @@ namespace BubbleBolt.Systems
         [SerializeField, Range(1f, 120f)] private float hazardOrbitAcceleration = 45f;
         [SerializeField] private Color hazardBaseColor = new Color(1f, 0.45f, 0.45f, 1f);
         [SerializeField] private Color hazardPulseColor = new Color(1f, 0.9f, 0.35f, 1f);
+        [SerializeField] private Gradient hazardTelegraphGradient = CreateGradient(new Color(1f, 0.45f, 0.35f), new Color(1f, 0.9f, 0.5f), 0.5f, 0f);
         [SerializeField, Range(0.1f, 6f)] private float hazardPulseSpeed = 2.4f;
         [SerializeField, Range(0f, 0.6f)] private float hazardPulseScale = 0.25f;
+        [SerializeField, Range(0f, 1f)] private float hazardHitShake = 0.2f;
 
         [Header("Runtime HUD")]
         [SerializeField] private bool spawnRuntimeHud = true;
@@ -47,6 +66,11 @@ namespace BubbleBolt.Systems
         [SerializeField, Range(0.55f, 0.95f)] private float sessionCoverageToWin = 0.7f;
         [SerializeField, Range(0f, 0.2f)] private float sessionCoverageDeadband = 0.03f;
         [SerializeField, Min(0f)] private float sessionInterRoundDelay = 2f;
+
+        [Header("Analytics")]
+        [SerializeField] private bool enableAnalyticsUpload = false;
+        [SerializeField] private string analyticsEndpoint = "https://analytics.bubblebolt.dev/v1/events";
+        [SerializeField] private string analyticsApiKey = string.Empty;
 
         private PrototypeCameraShake cameraShake;
 
@@ -83,7 +107,14 @@ namespace BubbleBolt.Systems
 
             CreateTrackVisual(arenaRoot);
 
-            GameObject playerBubble = CreateBubble("PlayerBubble", playerMaterial, new Color(0.8f, 0.95f, 1f));
+            GameObject playerBubble = CreateBubble(
+                "PlayerBubble",
+                playerMaterial,
+                playerFallbackColor,
+                playerTrailGradient,
+                playerAuraGradient,
+                bubbleTrailTime,
+                playerBubbleScale);
             playerBubble.transform.SetParent(root, false);
             playerBubble.transform.localPosition = new Vector3(arenaRadius, 0f, 0f);
 
@@ -97,7 +128,7 @@ namespace BubbleBolt.Systems
             playerPainter.Configure(liveTuning, arenaPainter);
 
             var glow = playerBubble.AddComponent<PlayerOverchargeGlow>();
-            glow.Configure(playerPainter, new Color(0.8f, 0.95f, 1f), new Color(1f, 0.65f, 0.2f));
+            glow.Configure(playerPainter, playerFallbackColor, new Color(1f, 0.65f, 0.2f));
             var feedback = playerBubble.AddComponent<PlayerFeedbackController>();
 
             Transform hazardsRoot = new GameObject("Hazards").transform;
@@ -106,9 +137,15 @@ namespace BubbleBolt.Systems
             hazardOrbit.Configure(hazardOrbitBaseSpeed, hazardOrbitVariance, hazardOrbitRetargetInterval, hazardOrbitAcceleration, true);
             SpawnHazards(hazardsRoot, orbitMover, playerPainter);
 
-            GameObject rivalGhost = CreateBubble("RivalGhost", rivalMaterial, new Color(1f, 0.65f, 0.85f));
+            GameObject rivalGhost = CreateBubble(
+                "RivalGhost",
+                rivalMaterial,
+                rivalFallbackColor,
+                rivalTrailGradient,
+                rivalAuraGradient,
+                bubbleTrailTime * 0.75f,
+                rivalBubbleScale);
             rivalGhost.transform.SetParent(root, false);
-            rivalGhost.transform.localScale = Vector3.one * 0.12f;
 
             var rivalController = rivalGhost.AddComponent<RivalSpiritController>();
             rivalController.Configure(liveTuning, arenaPainter, arenaCenter);
@@ -129,6 +166,7 @@ namespace BubbleBolt.Systems
 
             var analytics = systemsRoot.gameObject.AddComponent<PrototypeAnalyticsLogger>();
             analytics.Configure(sessionManager, playerPainter);
+            analytics.ConfigureEndpoint(enableAnalyticsUpload, analyticsEndpoint, analyticsApiKey);
 
             var tonePlayer = systemsRoot.gameObject.AddComponent<PrototypeTonePlayer>();
             feedback.Configure(playerPainter, tonePlayer, cameraShake);
@@ -173,12 +211,19 @@ namespace BubbleBolt.Systems
             cameraShake = shaker;
         }
 
-        private GameObject CreateBubble(string name, Material overrideMaterial, Color fallbackColor)
+        private GameObject CreateBubble(
+            string name,
+            Material overrideMaterial,
+            Color fallbackColor,
+            Gradient trailGradient,
+            Gradient auraGradient,
+            float trailTime,
+            float bubbleScale)
         {
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             sphere.name = name;
             Destroy(sphere.GetComponent<Collider>());
-            sphere.transform.localScale = Vector3.one * 0.15f;
+            sphere.transform.localScale = Vector3.one * bubbleScale;
 
             Renderer renderer = sphere.GetComponent<Renderer>();
             if (overrideMaterial != null)
@@ -190,7 +235,30 @@ namespace BubbleBolt.Systems
                 renderer.material.color = fallbackColor;
             }
 
+            BuildTrailRenderer(sphere, trailGradient, bubbleScale * 0.85f, trailTime);
+            BuildAura(sphere, auraGradient, bubbleScale * 0.65f, bubbleScale * 0.05f);
             return sphere;
+        }
+
+        private void BuildTrailRenderer(GameObject owner, Gradient gradient, float width, float duration)
+        {
+            var trail = owner.AddComponent<TrailRenderer>();
+            trail.time = duration;
+            trail.minVertexDistance = 0.01f;
+            trail.widthMultiplier = width;
+            trail.alignment = LineAlignment.View;
+            trail.colorGradient = gradient;
+            trail.material = new Material(Shader.Find("Sprites/Default"));
+        }
+
+        private void BuildAura(GameObject owner, Gradient gradient, float radius, float width)
+        {
+            GameObject aura = new GameObject("Aura");
+            aura.transform.SetParent(owner.transform, false);
+            var line = aura.AddComponent<LineRenderer>();
+            var pulse = aura.AddComponent<BubbleAuraPulse>();
+            line.material = new Material(Shader.Find("Sprites/Default"));
+            pulse.Configure(radius, gradient, width);
         }
 
         private void SpawnHazards(Transform parent, PlayerOrbitMover mover, PlayerPainter painter)
@@ -214,11 +282,11 @@ namespace BubbleBolt.Systems
                     Mathf.Deg2Rad * (hazardAngularSpanDegrees * 0.5f),
                     hazardRadiusTolerance);
 
-                CreateHazardMarker(hazardObject.transform);
+                CreateHazardMarker(hazardObject.transform, hazard);
             }
         }
 
-        private void CreateHazardMarker(Transform parent)
+        private void CreateHazardMarker(Transform parent, ArenaHazard hazard)
         {
             GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
             Destroy(marker.GetComponent<Collider>());
@@ -229,6 +297,27 @@ namespace BubbleBolt.Systems
             var renderer = marker.GetComponent<Renderer>();
             var pulse = marker.AddComponent<HazardMarkerPulse>();
             pulse.Initialize(renderer, hazardBaseColor, hazardPulseColor, hazardPulseSpeed, hazardPulseScale);
+
+            GameObject telegraphGO = new GameObject("Telegraph");
+            telegraphGO.transform.SetParent(parent, false);
+            var telegraphLine = telegraphGO.AddComponent<LineRenderer>();
+            var telegraph = telegraphGO.AddComponent<HazardTelegraphArc>();
+            telegraph.Configure(
+                arenaRadius,
+                Mathf.Deg2Rad * (hazardAngularSpanDegrees * 0.5f),
+                hazardTelegraphGradient,
+                0.04f,
+                hazardPulseSpeed * 0.5f);
+
+            if (hazard != null)
+            {
+                hazard.Hit += () =>
+                {
+                    pulse.TriggerImpactFlash();
+                    telegraph.TriggerFlash();
+                    cameraShake?.AddShake(hazardHitShake);
+                };
+            }
         }
 
         private void CreateTrackVisual(Transform parent)
@@ -238,8 +327,8 @@ namespace BubbleBolt.Systems
             var line = track.AddComponent<LineRenderer>();
             line.loop = true;
             line.useWorldSpace = false;
-            line.widthMultiplier = 0.02f;
-            line.positionCount = 64;
+            line.widthMultiplier = trackWidth;
+            line.positionCount = Mathf.Max(16, trackSegments);
             for (int i = 0; i < line.positionCount; i++)
             {
                 float t = i / (float)line.positionCount;
@@ -247,7 +336,12 @@ namespace BubbleBolt.Systems
                 line.SetPosition(i, new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * arenaRadius);
             }
             line.material = new Material(Shader.Find("Sprites/Default"));
-            line.material.color = new Color(0.2f, 0.6f, 1f, 0.4f);
+            if (trackGradient != null)
+            {
+                line.colorGradient = trackGradient;
+            }
+            var pulse = track.AddComponent<OrbitTrackPulse>();
+            pulse.Configure(line, trackGradient, trackWidth, trackPulseAmount);
         }
 
         private void BuildHud(Transform parent, ArenaPainter arenaPainter, PlayerPainter playerPainter, PrototypeSessionManager sessionManager, SwipeOrbitController swipeController)
@@ -484,6 +578,23 @@ namespace BubbleBolt.Systems
             GameObject es = new GameObject("EventSystem");
             es.AddComponent<EventSystem>();
             es.AddComponent<StandaloneInputModule>();
+        }
+
+        private static Gradient CreateGradient(Color start, Color end, float startAlpha = 1f, float endAlpha = 0f)
+        {
+            Gradient gradient = new Gradient();
+            gradient.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(start, 0f),
+                    new GradientColorKey(end, 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(startAlpha, 0f),
+                    new GradientAlphaKey(endAlpha, 1f)
+                });
+            return gradient;
         }
     }
 }

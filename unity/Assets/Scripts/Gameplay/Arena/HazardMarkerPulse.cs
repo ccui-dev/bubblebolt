@@ -12,11 +12,14 @@ namespace BubbleBolt.Gameplay.Arena
         [SerializeField] private Color pulseColor = new Color(1f, 0.9f, 0.35f, 1f);
         [SerializeField, Range(0.1f, 10f)] private float pulseSpeed = 2.5f;
         [SerializeField, Range(0f, 0.6f)] private float scaleAmount = 0.2f;
+        [SerializeField, Range(0f, 1f)] private float impactFlashBoost = 0.35f;
+        [SerializeField, Range(0.05f, 0.6f)] private float impactFlashDuration = 0.2f;
 
         private Vector3 _baseScale;
         private float _phaseOffset;
         private bool _configured;
         private Material _runtimeMaterial;
+        private float _impactTimer;
 
         private void Awake()
         {
@@ -47,6 +50,11 @@ namespace BubbleBolt.Gameplay.Arena
             Apply(0f);
         }
 
+        public void TriggerImpactFlash()
+        {
+            _impactTimer = impactFlashDuration;
+        }
+
         private void Update()
         {
             if (!_configured)
@@ -60,12 +68,21 @@ namespace BubbleBolt.Gameplay.Arena
 
         private void Apply(float t)
         {
+            float colorT = t;
+            if (_impactTimer > 0f)
+            {
+                _impactTimer = Mathf.Max(0f, _impactTimer - Time.deltaTime);
+                float impact = Mathf.Clamp01(_impactTimer / impactFlashDuration);
+                colorT = Mathf.Clamp01(colorT + impact * impactFlashBoost);
+            }
+
             if (_runtimeMaterial != null)
             {
-                _runtimeMaterial.color = Color.Lerp(idleColor, pulseColor, t);
+                _runtimeMaterial.color = Color.Lerp(idleColor, pulseColor, colorT);
             }
 
             float scale = 1f + (t - 0.5f) * 2f * scaleAmount;
+            scale += Mathf.Clamp01(_impactTimer / Mathf.Max(0.0001f, impactFlashDuration)) * scaleAmount;
             transform.localScale = _baseScale * Mathf.Max(0.1f, scale);
         }
 

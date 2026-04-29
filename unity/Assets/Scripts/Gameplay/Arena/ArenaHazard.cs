@@ -1,3 +1,4 @@
+using System;
 using BubbleBolt.Gameplay.Player;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,6 +18,11 @@ namespace BubbleBolt.Gameplay.Arena
         [SerializeField] private UnityEvent onHit;
 
         private float _cooldown;
+
+        public event Action Hit;
+
+        public float Radius => radius;
+        public float AngularHalfExtent => angularHalfExtent;
 
         private void Reset()
         {
@@ -48,6 +54,7 @@ namespace BubbleBolt.Gameplay.Arena
 
             playerPainter.RegisterHit();
             onHit?.Invoke();
+            Hit?.Invoke();
             _cooldown = damageCooldown;
         }
 
